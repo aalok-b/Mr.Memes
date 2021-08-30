@@ -1,0 +1,239 @@
+<html>
+<head>
+<title>MainActivity.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #808080;}
+.s4 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+MainActivity.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.example.mrmemes</span>
+
+<span class="s1">import android.content.Intent</span>
+<span class="s1">import android.graphics.drawable.Drawable</span>
+<span class="s1">import android.os.Build.VERSION_CODES.O</span>
+<span class="s1">import androidx.appcompat.app.AppCompatActivity</span>
+<span class="s1">import android.os.Bundle</span>
+<span class="s1">import android.view.GestureDetector</span>
+<span class="s1">import android.view.MotionEvent</span>
+<span class="s1">import android.view.View</span>
+<span class="s1">import android.widget.ImageView</span>
+<span class="s1">import android.widget.ProgressBar</span>
+<span class="s1">import android.widget.Toast</span>
+<span class="s1">import com.android.volley.Request</span>
+<span class="s1">import com.android.volley.Response</span>
+<span class="s1">import com.android.volley.toolbox.JsonObjectRequest</span>
+<span class="s1">import com.android.volley.toolbox.StringRequest</span>
+<span class="s1">import com.android.volley.toolbox.Volley</span>
+<span class="s1">import com.bumptech.glide.Glide</span>
+<span class="s1">import com.bumptech.glide.load.DataSource</span>
+<span class="s1">import com.bumptech.glide.load.engine.GlideException</span>
+<span class="s1">import com.bumptech.glide.request.RequestListener</span>
+<span class="s1">import com.bumptech.glide.request.target.Target</span>
+<span class="s1">import java.lang.Math.abs</span>
+
+
+<span class="s0">class </span><span class="s1">MainActivity : AppCompatActivity()</span><span class="s0">,</span><span class="s1">GestureDetector.OnGestureListener {</span>
+
+    <span class="s0">var </span><span class="s1">currentImageUrl: String? = </span><span class="s0">null</span>
+
+    <span class="s1">lateinit </span><span class="s0">var </span><span class="s1">gestureDetector: GestureDetector</span>
+    <span class="s0">var </span><span class="s1">x2:Float = </span><span class="s2">0.0f</span>
+    <span class="s0">var </span><span class="s1">x1:Float = </span><span class="s2">0.0f</span>
+    <span class="s0">var </span><span class="s1">y2:Float = </span><span class="s2">0.0f</span>
+    <span class="s0">var </span><span class="s1">y1:Float = </span><span class="s2">0.0f</span>
+
+    <span class="s1">companion </span><span class="s0">object</span><span class="s1">{</span>
+        <span class="s1">const </span><span class="s0">val </span><span class="s1">MIN_DISTANCE = </span><span class="s2">150</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCreate(savedInstanceState: Bundle?) {</span>
+        <span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span>
+        <span class="s1">setContentView(R.layout.activity_main)</span>
+
+        <span class="s1">gestureDetector = GestureDetector(</span><span class="s0">this, this</span><span class="s1">)</span>
+
+        <span class="s1">loadMeme()</span>
+
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onTouchEvent(event: MotionEvent?): Boolean {</span>
+
+        <span class="s1">gestureDetector.onTouchEvent(event)</span>
+
+        <span class="s0">when</span><span class="s1">(event?.action)</span>
+        <span class="s1">{</span>
+
+            <span class="s3">// when we start to swipe</span>
+            <span class="s2">0 </span><span class="s1">-&gt;</span>
+            <span class="s1">{</span>
+                <span class="s1">x1 = event.x</span>
+                <span class="s1">y1 = event.y</span>
+            <span class="s1">}</span>
+            <span class="s3">// when we end to swipe</span>
+            <span class="s2">1 </span><span class="s1">-&gt;</span>
+            <span class="s1">{</span>
+                <span class="s1">x2 = event.x</span>
+                <span class="s1">y2 = event.y</span>
+
+                <span class="s0">val </span><span class="s1">valueX: Float = x2 - x1</span>
+                <span class="s0">val </span><span class="s1">valueY: Float = y2 - y1</span>
+
+                <span class="s0">if </span><span class="s1">(abs(valueX) &gt; MIN_DISTANCE) {</span>
+                    <span class="s3">// detect right side swipe</span>
+                    <span class="s0">if </span><span class="s1">(x2 &gt; x1) {</span>
+                        <span class="s1">Toast.makeText(</span><span class="s0">this, </span><span class="s4">&quot;Right Swipe&quot;</span><span class="s0">, </span><span class="s1">Toast.LENGTH_SHORT).show()</span>
+
+                    <span class="s1">}</span>
+                    <span class="s3">// detect left side swipe</span>
+                   <span class="s0">else  </span><span class="s1">{</span>
+
+                        <span class="s1">loadMeme()</span>
+                    <span class="s1">}</span>
+
+                <span class="s1">}</span>
+                <span class="s0">else if </span><span class="s1">( abs(valueY) &gt; MIN_DISTANCE)</span>
+                <span class="s1">{</span>
+                    <span class="s3">// detect top to bottom swipe</span>
+                    <span class="s0">if</span><span class="s1">(y2 &gt; y1){</span>
+                        <span class="s1">Toast.makeText(</span><span class="s0">this, </span><span class="s4">&quot;Downward Swipe&quot;</span><span class="s0">, </span><span class="s1">Toast.LENGTH_SHORT).show()</span>
+                    <span class="s1">}</span>
+                    <span class="s3">// detect bottom to top swipe</span>
+                    <span class="s0">else</span><span class="s1">{</span>
+                        <span class="s0">val </span><span class="s1">intent = Intent(Intent.ACTION_SEND)</span>
+                        <span class="s1">intent.type = </span><span class="s4">&quot;text/plain&quot;</span>
+                        <span class="s1">intent.putExtra(Intent.EXTRA_TEXT</span><span class="s0">, </span><span class="s4">&quot;</span><span class="s0">$</span><span class="s1">currentImageUrl</span><span class="s4">&quot;</span><span class="s1">)</span>
+                        <span class="s0">val </span><span class="s1">chooser = Intent.createChooser(intent</span><span class="s0">,</span><span class="s4">&quot;Share this using....&quot;</span><span class="s1">)</span>
+                        <span class="s1">startActivity(chooser)</span>
+                    <span class="s1">}</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+
+        <span class="s0">return super</span><span class="s1">.onTouchEvent(event)</span>
+    <span class="s1">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">loadMeme(){</span>
+
+        <span class="s0">val </span><span class="s1">load = findViewById&lt;ProgressBar&gt;(R.id.load)</span>
+        <span class="s1">load.visibility = View.VISIBLE</span>
+        <span class="s3">// Instantiate the RequestQueue.</span>
+        <span class="s0">val </span><span class="s1">queue = Volley.newRequestQueue(</span><span class="s0">this</span><span class="s1">)</span>
+        <span class="s0">val </span><span class="s1">url = </span><span class="s4">&quot;https://meme-api.herokuapp.com/gimme&quot;</span>
+
+         <span class="s3">// Request a string response from the provided URL.</span>
+        <span class="s0">val </span><span class="s1">jsonObjectRequest = JsonObjectRequest(</span>
+            <span class="s1">Request.Method.GET</span><span class="s0">, </span><span class="s1">url</span><span class="s0">,null,</span>
+            <span class="s1">Response.Listener{ response -&gt;</span>
+                <span class="s1">currentImageUrl = response.getString(</span><span class="s4">&quot;url&quot;</span><span class="s1">)</span>
+
+
+                <span class="s0">val </span><span class="s1">imageView = findViewById&lt;ImageView&gt;(R.id.imageView)</span>
+                <span class="s1">Glide.with(</span><span class="s0">this</span><span class="s1">).load(currentImageUrl).listener(</span><span class="s0">object</span><span class="s1">: RequestListener&lt;Drawable&gt;{</span>
+
+                    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onLoadFailed(</span>
+                        <span class="s1">e: GlideException?</span><span class="s0">,</span>
+                        <span class="s1">model: Any?</span><span class="s0">,</span>
+                        <span class="s1">target: Target&lt;Drawable&gt;?</span><span class="s0">,</span>
+                        <span class="s1">isFirstResource: Boolean</span>
+                    <span class="s1">): Boolean {</span>
+
+                        <span class="s1">load.visibility = View.GONE</span>
+                        <span class="s0">return false</span>
+                    <span class="s1">}</span>
+
+                    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onResourceReady(</span>
+                        <span class="s1">resource: Drawable?</span><span class="s0">,</span>
+                        <span class="s1">model: Any?</span><span class="s0">,</span>
+                        <span class="s1">target: Target&lt;Drawable&gt;?</span><span class="s0">,</span>
+                        <span class="s1">dataSource: DataSource?</span><span class="s0">,</span>
+                        <span class="s1">isFirstResource: Boolean</span>
+                    <span class="s1">): Boolean {</span>
+                        <span class="s1">load.visibility = View.GONE</span>
+                        <span class="s0">return false</span>
+                    <span class="s1">}</span>
+                <span class="s1">}).into(imageView )</span>
+
+            <span class="s1">}</span><span class="s0">,</span>
+            <span class="s1">{  })</span>
+        <span class="s3">// Add the request to the RequestQueue.</span>
+        <span class="s1">queue.add(jsonObjectRequest)</span>
+    <span class="s1">}</span>
+
+
+
+
+    <span class="s0">fun </span><span class="s1">shareMeme(view: View) {</span>
+
+        <span class="s0">val </span><span class="s1">intent = Intent(Intent.ACTION_SEND)</span>
+        <span class="s1">intent.type = </span><span class="s4">&quot;text/plain&quot;</span>
+        <span class="s1">intent.putExtra(Intent.EXTRA_TEXT</span><span class="s0">, </span><span class="s4">&quot;</span><span class="s0">$</span><span class="s1">currentImageUrl</span><span class="s4">&quot;</span><span class="s1">)</span>
+        <span class="s0">val </span><span class="s1">chooser = Intent.createChooser(intent</span><span class="s0">,</span><span class="s4">&quot;Share this using....&quot;</span><span class="s1">)</span>
+        <span class="s1">startActivity(chooser)</span>
+    <span class="s1">}</span>
+
+
+
+    <span class="s0">fun </span><span class="s1">nextMeme(view: View) {</span>
+        <span class="s1">loadMeme()</span>
+    <span class="s1">}</span>
+
+
+
+
+    <span class="s3">// we dont need this just have to implement</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onDown(e: MotionEvent?): Boolean {</span>
+        <span class="s3">//TODO(&quot;Not yet implemented&quot;)</span>
+        <span class="s0">return false</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onShowPress(e: MotionEvent?) {</span>
+       <span class="s3">// TODO(&quot;Not yet implemented&quot;)</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onSingleTapUp(e: MotionEvent?): Boolean {</span>
+       <span class="s3">// TODO(&quot;Not yet implemented&quot;)</span>
+        <span class="s0">return false</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onScroll(</span>
+        <span class="s1">e1: MotionEvent?</span><span class="s0">,</span>
+        <span class="s1">e2: MotionEvent?</span><span class="s0">,</span>
+        <span class="s1">distanceX: Float</span><span class="s0">,</span>
+        <span class="s1">distanceY: Float</span>
+    <span class="s1">): Boolean {</span>
+       <span class="s3">// TODO(&quot;Not yet implemented&quot;)</span>
+        <span class="s0">return false</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onLongPress(e: MotionEvent?) {</span>
+       <span class="s3">// TODO(&quot;Not yet implemented&quot;)</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onFling(</span>
+        <span class="s1">e1: MotionEvent?</span><span class="s0">,</span>
+        <span class="s1">e2: MotionEvent?</span><span class="s0">,</span>
+        <span class="s1">velocityX: Float</span><span class="s0">,</span>
+        <span class="s1">velocityY: Float</span>
+    <span class="s1">): Boolean {</span>
+       <span class="s3">// TODO(&quot;Not yet implemented&quot;)</span>
+        <span class="s0">return false</span>
+    <span class="s1">}</span>
+
+
+<span class="s1">}</span>
+
+
+</pre>
+</body>
+</html>
